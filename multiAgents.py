@@ -76,18 +76,28 @@ class ReflexAgent(Agent):
         #print('scared', newScaredTimes)
         "*** YOUR CODE HERE ***"
         someList = []
+        foodVisited = []
         for x in newFood.asList():
+            foodVisited.append(x)
             someList.append(manhattanDistance(x, newPos))
         
         distanceofGhost = manhattanDistance(newPos, newGhostStates[0].getPosition())
-        
+        foodEaten = []
         weight = successorGameState.getScore()
+        for item in newFood.asList():
+            if item not in someList:
+                foodEaten.append(item)
         
         if (len(someList)):
             weight += 10 / min(someList)
         if (distanceofGhost):
             weight -= 10 / distanceofGhost
-        
+        if (newScaredTimes[0] != 0):
+            weight += 1000 / (distanceofGhost+1) # play really agressive when ghost scared
+            #pass
+        if (len(foodEaten)):
+            weight += 10 / len(foodEaten) #award for eating more
+            #pass
         return weight
 
 def scoreEvaluationFunction(currentGameState):
