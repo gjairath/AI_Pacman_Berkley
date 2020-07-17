@@ -159,18 +159,19 @@ class MinimaxAgent(MultiAgentSearchAgent):
     def alphabeta(self, state, depth, agentI, action):
         
         if self.isTerminal(state, depth, agentI):
-             return (self.evaluationFunction(state), action)
+             return [self.evaluationFunction(state), action]
         
         if agentI == 0:
-            infValue = (-9999999.0, Directions.STOP)
+            infValue = [-9999999.0, Directions.STOP]
             for laction in state.getLegalActions(agentI):
                 value = (self.alphabeta(state.generateSuccessor(agentI, laction), depth - 1, (agentI + 1) % state.getNumAgents(), (laction if depth is self.depth*state.getNumAgents() else action)))
+                #infValue = max(value[0], infValue[0])
                 if value[0] > infValue[0]:
                     infValue = value
                # ac = action
             return infValue
         else:
-            infValue = (+999999.0, Directions.STOP)
+            infValue = [+999999.0, Directions.STOP]
             for laction in state.getLegalActions(agentI):
                 value = ((self.alphabeta(state.generateSuccessor(agentI, laction), depth - 1, (agentI + 1) % state.getNumAgents(), action)))
                 if value[0] < infValue[0]:
@@ -182,16 +183,44 @@ class MinimaxAgent(MultiAgentSearchAgent):
         return self.alphabeta(gameState, self.depth*gameState.getNumAgents(), 0, Directions.STOP)[1]
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
-    """
-      Your minimax agent with alpha-beta pruning (question 3)
-    """
+    
+    def isTerminal(self, state, depth, agent):
+        return depth == 0 or state.isWin() or state.isLose() or state.getLegalActions(agent) == 0
+    
+    def alphabeta(self, state, depth, agentI, action, alpha, beta):
+        
+        if self.isTerminal(state, depth, agentI):
+             return [self.evaluationFunction(state), action]
+        
+        if agentI == 0:
+            infValue = [-9999999.0, Directions.STOP]
+            for laction in state.getLegalActions(agentI):
+                value = (self.alphabeta(state.generateSuccessor(agentI, laction), depth - 1, (agentI + 1) % state.getNumAgents(), (laction if depth is self.depth*state.getNumAgents() else action), alpha, beta))
+                #infValue = max(value[0], infValue[0])
+                if value[0] > infValue[0]:
+                    infValue = value
+                alpha = max(alpha, value[0])
+                if alpha > beta:
+                    break
+               # ac = action
+            return infValue
+        else:
+            infValue = [+999999.0, Directions.STOP]
+            for laction in state.getLegalActions(agentI):
+                value = ((self.alphabeta(state.generateSuccessor(agentI, laction), depth - 1, (agentI + 1) % state.getNumAgents(), action, alpha, beta)))
+                if value[0] < infValue[0]:
+                    infValue = value
+                beta = min(beta, value[0])
+                if beta < alpha:
+                    break
+            return infValue
 
     def getAction(self, gameState):
         """
           Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.alphabeta(gameState, self.depth*gameState.getNumAgents(), 0, Directions.STOP, -9999999, +9999999)[1]
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
