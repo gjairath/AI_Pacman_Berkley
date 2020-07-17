@@ -79,11 +79,16 @@ class ReflexAgent(Agent):
         for x in newFood.asList():
             someList.append(manhattanDistance(x, newPos))
         
-        distanceofGhost = manhattanDistance(newPos, newGhostStates[0].getGhostPositions)
+        distanceofGhost = manhattanDistance(newPos, newGhostStates[0].getPosition())
         
         weight = successorGameState.getScore()
         
+        if (len(someList)):
+            weight += 10 / min(someList)
+        if (distanceofGhost):
+            weight -= 10 / distanceofGhost
         
+        return weight
 
 def scoreEvaluationFunction(currentGameState):
     """
