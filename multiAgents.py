@@ -159,28 +159,28 @@ class MinimaxAgent(MultiAgentSearchAgent):
     def alphabeta(self, state, depth, agentI, action):
         
         if self.isTerminal(state, depth, agentI):
-             return action, self.evaluationFunction(state)
+             return (self.evaluationFunction(state), action)
         
         if agentI == 0:
             infValue = (-9999999.0, Directions.STOP)
-            for action in state.getLegalActions(agentI):
-                value = (self.alphabeta(state.generateSuccessor(agentI, action), depth - 1, agentI ,(action if depth is self.depth*state.getNumAgents() else action)))
+            for laction in state.getLegalActions(agentI):
+                value = (self.alphabeta(state.generateSuccessor(agentI, laction), depth - 1, (agentI + 1) % state.getNumAgents(), (laction if depth is self.depth*state.getNumAgents() else action)))
                 if value[0] > infValue[0]:
                     infValue = value
                # ac = action
             return infValue
         else:
-            value = +999999.0
-            for action in state.getLegalActions(agentI):
-                value = min(value, self.alphabeta(state.generateSuccessor(agentI, action), depth - 1, agentI, (action if depth is self.depth*state.getNumAgents() else action)))
-                
-            return min(state.getLegalActions(agentI))
+            infValue = (+999999.0, Directions.STOP)
+            for laction in state.getLegalActions(agentI):
+                value = ((self.alphabeta(state.generateSuccessor(agentI, laction), depth - 1, (agentI + 1) % state.getNumAgents(), action)))
+                if value[0] < infValue[0]:
+                    infValue = value
+            return infValue
     
     def getAction(self, gameState):
 
-        ac = self.alphabeta(gameState, self.depth*gameState.getNumAgents(), 0, 'Stop')
-        return ac
-        
+        return self.alphabeta(gameState, self.depth*gameState.getNumAgents(), 0, Directions.STOP)[1]
+
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
       Your minimax agent with alpha-beta pruning (question 3)
