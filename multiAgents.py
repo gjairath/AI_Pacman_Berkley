@@ -223,19 +223,38 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         return self.alphabeta(gameState, self.depth*gameState.getNumAgents(), 0, Directions.STOP, -9999999, +9999999)[1]
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
-    """
-      Your expectimax agent (question 4)
-    """
+    def isTerminal(self, state, depth, agent):
+        return depth == 0 or state.isWin() or state.isLose() or state.getLegalActions(agent) == 0
+    
+    def expecti(self, state, depth, agentI, action):
+        
+        if self.isTerminal(state, depth, agentI):
+             return [self.evaluationFunction(state), action]
+        
+        if agentI == 0:
+            infValue = [-9999999.0, Directions.STOP]
+            for laction in state.getLegalActions(agentI):
+                value = (self.expecti(state.generateSuccessor(agentI, laction), depth - 1, (agentI + 1) % state.getNumAgents(), 
+                                     (laction if depth is self.depth*state.getNumAgents() else action)))
+                #infValue = max(value[0], infValue[0])
+                if value[0] > infValue[0]:
+                    infValue = value
+               # ac = action
+            return infValue
+        else:
+            infValue = 0.0
+            for laction in state.getLegalActions(agentI):
+                value = ((self.expecti(state.generateSuccessor(agentI, laction), depth - 1, (agentI + 1) % state.getNumAgents(), action)))
+                infValue += value[0] 
+                #infValue[1] = action
+            return [infValue, action]
 
     def getAction(self, gameState):
         """
-          Returns the expectimax action using self.depth and self.evaluationFunction
-
-          All ghosts should be modeled as choosing uniformly at random from their
-          legal moves.
+          Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.expecti(gameState, self.depth*gameState.getNumAgents(), 0, Directions.STOP)[1]
 
 def betterEvaluationFunction(currentGameState):
     """
