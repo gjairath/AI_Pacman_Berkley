@@ -264,7 +264,41 @@ def betterEvaluationFunction(currentGameState):
       DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+        
+    newPos = currentGameState.getPacmanPosition()
+    newFood = currentGameState.getFood()
+    newGhostStates = currentGameState.getGhostStates()
+    #newSomething = successorGameState.getGhostPositions()
+    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+    #print('scared', newScaredTimes)
+    "*** YOUR CODE HERE ***"
+    someList = []
+    foodVisited = []
+    for x in newFood.asList():
+        foodVisited.append(x)
+        someList.append(manhattanDistance(x, newPos))
+    
+    distanceofGhost = manhattanDistance(newPos, newGhostStates[0].getPosition())
+    foodEaten = []
+    weight = currentGameState.getScore()
+    for item in newFood.asList():
+        if item not in someList:
+            foodEaten.append(item)
+    
+    if (len(someList)):
+        weight += 10 / min(someList)
+    if (distanceofGhost):
+        weight -= 5 / distanceofGhost
+    if (newScaredTimes[0] != 0):
+            weight += 1000 / (distanceofGhost+1) # play really agressive when ghost scared
+        #pass
+    if (len(foodEaten)):
+        weight += 10 / len(foodEaten) #award for eating more
+        #pass
+    
+    f4 = -5*len(newFood.asList())
+    weight += f4
+    return weight 
 
 # Abbreviation
 better = betterEvaluationFunction
